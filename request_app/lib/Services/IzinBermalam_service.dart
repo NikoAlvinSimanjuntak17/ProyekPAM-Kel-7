@@ -9,6 +9,14 @@ Future<ApiResponse> CreateIzinBermalam(
     String reason, DateTime start_date, DateTime end_date) async {
   ApiResponse apiResponse = ApiResponse();
   try {
+    // Check if the start_date is within the allowed timeframe (2 days in advance)
+    DateTime allowedStartDate = DateTime.now().add(Duration(days: 2));
+    if (start_date.isBefore(allowedStartDate)) {
+      apiResponse.error =
+          'Izin Bermalam can only be requested 2 days in advance.';
+      return apiResponse;
+    }
+
     String token = await getToken();
     final response =
         await http.post(Uri.parse(baseURL + 'izinbermalam'), headers: {
@@ -16,8 +24,8 @@ Future<ApiResponse> CreateIzinBermalam(
       'Authorization': 'Bearer $token'
     }, body: {
       'reason': reason,
-      'start_date': start_date.toString(),
-      'end_date': end_date.toString(),
+      'start_date': start_date.toIso8601String(),
+      'end_date': end_date.toIso8601String(),
     });
 
     switch (response.statusCode) {
@@ -34,7 +42,6 @@ Future<ApiResponse> CreateIzinBermalam(
       default:
         apiResponse.error = somethingWentWrong;
         print("Server Response: ${response.body}");
-
         break;
     }
   } catch (e) {

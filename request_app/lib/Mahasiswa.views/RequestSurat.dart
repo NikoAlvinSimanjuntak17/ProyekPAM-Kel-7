@@ -26,7 +26,7 @@ class _RequestIzinSuratScreenState extends State<RequestIzinSuratScreen> {
       if (response.error == null) {
         setState(() {
           _izinsuratlist = response.data as List<dynamic>;
-          _loading = _loading ? !_loading : _loading;
+          _loading = false;
         });
       } else if (response.error == unauthrorized) {
         logout().then((value) => {
@@ -57,9 +57,9 @@ class _RequestIzinSuratScreenState extends State<RequestIzinSuratScreen> {
       ApiResponse response = await DeleteIzinSurat(id);
 
       if (response.error == null) {
-        await Future.delayed(Duration(milliseconds: 300)); // Add this line
-        Navigator.pop(context); // Close the confirmation dialog
-        retrievePosts(); // Move retrievePosts after the dialog is closed
+        await Future.delayed(Duration(milliseconds: 300));
+        Navigator.pop(context);
+        retrievePosts();
       } else if (response.error == unauthrorized) {
         // ... (unchanged)
       } else {
@@ -74,132 +74,154 @@ class _RequestIzinSuratScreenState extends State<RequestIzinSuratScreen> {
 
   @override
   void initState() {
-    // Call retrievePosts to fetch data when the screen is initialized
     retrievePosts();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return MaterialApp(
+      theme: ThemeData(
+        primaryColor: Colors.blue,
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: Colors.blueAccent,
+        ),
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Izin Surat Requests'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: _navigateToAddData,
+            ),
+          ],
+        ),
         body: _loading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: Colors.blue,
+                ),
+              )
             : SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
+                  headingTextStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  dataRowHeight: 56,
                   columns: [
                     DataColumn(label: Text('No')),
                     DataColumn(label: Text('Keperluan Surat')),
                     DataColumn(label: Text('Status')),
                     DataColumn(label: Text('Actions')),
                   ],
-                  rows: _izinsuratlist
-                      .map(
-                        (requestIzinSurat) => DataRow(
-                          cells: [
-                            DataCell(Text(
-                                '${_izinsuratlist.indexOf(requestIzinSurat) + 1}')),
-                            DataCell(Text(requestIzinSurat.reason)),
-                            DataCell(Text(requestIzinSurat.status)),
-                            DataCell(
-                              PopupMenuButton(
-                                itemBuilder: (BuildContext context) {
-                                  return [
-                                    PopupMenuItem(
-                                      child: Text('Edit'),
-                                      value: 'edit',
-                                    ),
-                                    PopupMenuItem(
-                                      child: Text('View'),
-                                      value: 'view',
-                                    ),
-                                    PopupMenuItem(
-                                      child: Text('Cancel'),
-                                      value: 'delete',
-                                    ),
-                                  ];
-                                },
-                                onSelected: (String value) {
-                                  if (value == 'edit') {
-                                    int index = _izinsuratlist
-                                        .indexOf(requestIzinSurat);
-                                    RequestIzinSurat selectedIzinKeluar =
-                                        _izinsuratlist[index];
+                  rows: _izinsuratlist.map((requestIzinSurat) {
+                    int index = _izinsuratlist.indexOf(requestIzinSurat);
+                    return DataRow(
+                      cells: [
+                        DataCell(Text('${index + 1}')),
+                        DataCell(Text(requestIzinSurat.reason)),
+                        DataCell(Text(requestIzinSurat.status)),
+                        DataCell(
+                          PopupMenuButton(
+                            itemBuilder: (BuildContext context) {
+                              return [
+                                PopupMenuItem(
+                                  child: Text('Edit'),
+                                  value: 'edit',
+                                ),
+                                PopupMenuItem(
+                                  child: Text('View'),
+                                  value: 'view',
+                                ),
+                                PopupMenuItem(
+                                  child: Text('Delete'),
+                                  value: 'delete',
+                                ),
+                              ];
+                            },
+                            onSelected: (String value) {
+                              if (value == 'edit') {
+                                int index =
+                                    _izinsuratlist.indexOf(requestIzinSurat);
+                                RequestIzinSurat selectedIzinSurat =
+                                    _izinsuratlist[index];
 
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                      builder: (context) => FormIzinSurats(
-                                        title: "Edit Surat",
-                                        formIzinSurat: selectedIzinKeluar,
-                                      ),
-                                    ));
-                                  } else if (value == 'view') {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text("View Surat"),
-                                          content: Text(
-                                              "Keperluan Surat: ${requestIzinSurat.reason}"),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: Text('Close'),
-                                            ),
-                                          ],
-                                        );
-                                      },
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => FormIzinSurats(
+                                    title: "Edit Surat",
+                                    formIzinSurat: selectedIzinSurat,
+                                  ),
+                                ));
+                              } else if (value == 'view') {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text("View Surat"),
+                                      content: Text(
+                                          "Keperluan Surat: ${requestIzinSurat.reason}"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Close'),
+                                        ),
+                                      ],
                                     );
-                                  } else if (value == 'delete') {
-                                    int index = _izinsuratlist
-                                        .indexOf(requestIzinSurat);
-                                    RequestIzinSurat selectedIzinKeluar =
-                                        _izinsuratlist[index];
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text("Delete Surat"),
-                                          content: Text(
-                                              "Apakah Anda yakin ingin menghapus surat ini?"),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(
-                                                    context); // Tutup dialog konfirmasi
-                                              },
-                                              child: Text('Batal'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                deleteIzinSurat(
-                                                    selectedIzinKeluar.id ?? 0);
-                                              },
-                                              child: Text('Hapus'),
-                                            ),
-                                          ],
-                                        );
-                                      },
+                                  },
+                                );
+                              } else if (value == 'delete') {
+                                int index =
+                                    _izinsuratlist.indexOf(requestIzinSurat);
+                                RequestIzinSurat selectedIzinSurat =
+                                    _izinsuratlist[index];
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text("Delete Surat"),
+                                      content: Text(
+                                          "Are you sure you want to delete this request?"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            deleteIzinSurat(
+                                                selectedIzinSurat.id ?? 0);
+                                          },
+                                          child: Text('Delete'),
+                                        ),
+                                      ],
                                     );
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
+                                  },
+                                );
+                              }
+                            },
+                          ),
                         ),
-                      )
-                      .toList(),
+                      ],
+                    );
+                  }).toList(),
                 ),
               ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _navigateToAddData,
           label: Text('Request Here'),
           icon: Icon(Icons.add),
+          backgroundColor: Colors.blue,
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         bottomNavigationBar: BottomAppBar(
+          color: Colors.blue,
           shape: const CircularNotchedRectangle(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -214,13 +236,15 @@ class _RequestIzinSuratScreenState extends State<RequestIzinSuratScreen> {
                     );
                   },
                   child: Text(
-                    '<-  Back to Home',
-                    style: TextStyle(color: Colors.blue),
+                    '<- Back to Home',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ],
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

@@ -83,7 +83,7 @@ class _RequestIzinBermalamScreenState extends State<RequestIzinBermalamScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-          primaryColor: Colors.blue,
+          primaryColor: Colors.blueAccent,
           colorScheme: ColorScheme.fromSwatch().copyWith(
             secondary: Colors.blueAccent,
           ) // Add more styling as needed
@@ -101,7 +101,7 @@ class _RequestIzinBermalamScreenState extends State<RequestIzinBermalamScreen> {
         body: _loading
             ? Center(
                 child: CircularProgressIndicator(
-                  color: Colors.blue,
+                  color: Colors.blueAccent,
                 ),
               )
             : SingleChildScrollView(
@@ -237,7 +237,7 @@ class _RequestIzinBermalamScreenState extends State<RequestIzinBermalamScreen> {
                     );
                   },
                   child: Text(
-                    'Back to Home',
+                    '<- Back to Home',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
