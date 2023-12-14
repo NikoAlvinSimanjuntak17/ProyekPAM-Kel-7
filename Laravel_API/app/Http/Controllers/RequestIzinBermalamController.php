@@ -142,6 +142,23 @@ public function approveIzinBermalam($id)
 
     return response()->json(['message' => 'Permintaan Izin Keluar Telah Disetujui'], 200);
 }
+public function rejectIzinBermalam($id)
+{
+    if (auth()->user()->role !== 'baak') {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    $izinBermalam = RequestIzinBermalam::find($id);
+
+    if (!$izinBermalam) {
+        return response()->json(['message' => 'Request Izin Surat Tidak Ditemukan'], 404);
+    }
+
+    $izinBermalam->status = 'rejected';
+    $izinBermalam->save();
+
+    return response()->json(['message' => 'Permintaan Izin Surat Telah Ditolak'], 200);
+}
 
 
 }

@@ -56,9 +56,14 @@ Route::group(['middleware'=>['auth:sanctum']],function(){
 
     Route::get('/izin-keluar/all', [RequestIzinKeluarController::class, 'viewAllRequestsForBaak']);
     Route::put('/izin-keluar/{id}/approve', [RequestIzinKeluarController::class, 'approveIzinKeluar']);
+    Route::put('/izin-keluar/{id}/reject', [RequestIzinKeluarController::class, 'rejectIzinKeluar']);
+
+
 
     Route::get('/izin-bermalam/all', [RequestIzinBermalamController::class, 'viewAllRequestsForBaak']);
     Route::put('/izin-bermalam/{id}/approve', [RequestIzinBermalamController::class, 'approveIzinBermalam']);
+    Route::put('/izin-bermalam/{id}/reject', [RequestIzinBermalamController::class, 'rejectIzinBermalam']);
+
 
     Route::get('/izin-surat/all', [RequestSuratController::class, 'viewAllRequestsForBaak']);
     Route::put('/izin-surat/{id}/approve', [RequestSuratController::class, 'approveIzinSurat']);

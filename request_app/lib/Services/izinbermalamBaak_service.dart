@@ -40,6 +40,40 @@ class IzinBermalamBaakController {
     return apiResponse;
   }
 
+  static Future<ApiResponse<String>> rejectIzinBermalam(int izinId) async {
+    ApiResponse<String> apiResponse = ApiResponse();
+
+    try {
+      String token = await getToken();
+
+      final response = await http.put(
+        Uri.parse(baseURL + 'izin-bermalam/$izinId/reject'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      switch (response.statusCode) {
+        case 200:
+          apiResponse.data = 'Permintaan Izin Bermalam Telah Ditolak';
+          break;
+        case 401:
+          apiResponse.error = 'Unauthorized';
+          break;
+        default:
+          apiResponse.error = 'Something went wrong';
+          print("Server Response: ${response.body}");
+          break;
+      }
+    } catch (e) {
+      apiResponse.error = 'Server error: $e';
+      print("Error in rejectIzinBermalam: $e");
+    }
+
+    return apiResponse;
+  }
+
   static Future<ApiResponse<List<IzinBermalamBaak>>>
       viewAllRequestsForBaak() async {
     ApiResponse<List<IzinBermalamBaak>> apiResponse = ApiResponse();

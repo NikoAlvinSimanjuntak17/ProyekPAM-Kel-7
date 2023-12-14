@@ -142,6 +142,24 @@ public function approveIzinKeluar($id)
 
     return response()->json(['message' => 'Permintaan Izin Keluar Telah Disetujui'], 200);
 }
+public function rejectIzinKeluar($id)
+{
+    if (auth()->user()->role !== 'baak') {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    $izinKeluar = RequestIzinKeluar::find($id);
+
+    if (!$izinKeluar) {
+        return response()->json(['message' => 'Request Izin Keluar Tidak Ditemukan'], 404);
+    }
+
+    $izinKeluar->status = 'rejected';
+    $izinKeluar->save();
+
+    return response()->json(['message' => 'Permintaan Izin Keluar Telah Ditolak'], 200);
+}
+
 
 
 }

@@ -73,12 +73,26 @@ class _IzinKeluarBaakViewState extends State<IzinKeluarBaakView> {
                       ),
                       trailing: izinKeluar.status == 'approved'
                           ? Icon(Icons.check, color: Colors.green)
-                          : ElevatedButton(
-                              onPressed: () {
-                                approveIzin(izinKeluar.id);
-                              },
-                              child: Text('Approve'),
-                            ),
+                          : izinKeluar.status == 'rejected'
+                              ? Icon(Icons.clear, color: Colors.red)
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        approveIzin(izinKeluar.id);
+                                      },
+                                      child: Text('Approve'),
+                                    ),
+                                    SizedBox(width: 8.0),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        rejectIzin(izinKeluar.id);
+                                      },
+                                      child: Text('Reject'),
+                                    ),
+                                  ],
+                                ),
                     ),
                   );
                 },
@@ -96,6 +110,23 @@ class _IzinKeluarBaakViewState extends State<IzinKeluarBaakView> {
     if (response.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to approve: ${response.error}')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${response.data}')),
+      );
+      setState(() {
+        _izinKeluarData = IzinKeluarBaakController.viewAllRequestsForBaak();
+      });
+    }
+  }
+
+  void rejectIzin(int izinId) async {
+    ApiResponse<String> response =
+        await IzinKeluarBaakController.rejectIzinKeluar(izinId);
+    if (response.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to reject: ${response.error}')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

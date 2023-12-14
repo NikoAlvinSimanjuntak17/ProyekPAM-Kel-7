@@ -75,12 +75,26 @@ class _IzinBermalamBaakViewState extends State<IzinBermalamBaakView> {
                       ),
                       trailing: izinBermalam.status == 'approved'
                           ? Icon(Icons.check, color: Colors.green)
-                          : ElevatedButton(
-                              onPressed: () {
-                                approveIzin(izinBermalam.id);
-                              },
-                              child: Text('Approve'),
-                            ),
+                          : izinBermalam.status == 'rejected'
+                              ? Icon(Icons.clear, color: Colors.red)
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        approveIzin(izinBermalam.id);
+                                      },
+                                      child: Text('Approve'),
+                                    ),
+                                    SizedBox(width: 8.0),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        rejectIzin(izinBermalam.id);
+                                      },
+                                      child: Text('Reject'),
+                                    ),
+                                  ],
+                                ),
                     ),
                   );
                 },
@@ -105,6 +119,23 @@ class _IzinBermalamBaakViewState extends State<IzinBermalamBaakView> {
       );
       setState(() {
         // Refresh data after approval
+        _izinBermalamData = IzinBermalamBaakController.viewAllRequestsForBaak();
+      });
+    }
+  }
+
+  void rejectIzin(int izinId) async {
+    ApiResponse<String> response =
+        await IzinBermalamBaakController.rejectIzinBermalam(izinId);
+    if (response.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to reject: ${response.error}')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${response.data}')),
+      );
+      setState(() {
         _izinBermalamData = IzinBermalamBaakController.viewAllRequestsForBaak();
       });
     }
